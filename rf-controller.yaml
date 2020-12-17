@@ -1,0 +1,50 @@
+esphome:
+  name: rf_controller
+  platform: ESP8266
+  board: d1_mini
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_pass
+
+  ap:
+    ssid: "Rf-Controller Fallback Hotspot"
+    password: !secret ap_pass
+
+captive_portal:
+
+# Enable logging
+logger:
+  level: DEBUG
+
+# Enable Home Assistant API
+api:
+
+ota:
+
+web_server:
+  port: 80
+
+# remote_receiver:
+#   pin:
+#     number: D5
+#     # inverted: true
+#     #mode: INPUT_PULLUP
+#   dump: all
+#   tolerance: 50%
+#   filter: 10us
+#   idle: 4ms
+#   buffer_size: 2kb
+
+remote_transmitter:
+  pin:
+    number: D6
+  carrier_duty_percent: 100%
+
+switch:
+  - platform: template
+    name: Turn on
+    turn_on_action:
+      - remote_transmitter.transmit_raw:
+          code: [1188, -453, 372, -856, 794, -859, 780, -871, 372, -448, 781, -457, 371, -451, 368, -451, 369, -502, 1192, -448, 376, -866, 776, -460, 367, -457, 367, -866, 778, -460, 368, -865, 369, -452, 776, -638, 1179, -868, 371, -452, 373, -450, 372]
+

@@ -1,0 +1,45 @@
+esphome:
+  name: distance_sensor_00
+  platform: ESP8266
+  board: d1_mini
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_pass
+
+  ap:
+    ssid: "Distance 00 Fallback Hotspot"
+    password: !secret ap_pass
+
+captive_portal:
+
+logger:
+
+api:
+
+ota:
+
+web_server:
+  port: 80
+
+sensor:
+  - platform: wifi_signal
+    name: "Distance 00 Wifi Signal"
+    update_interval: 300s
+    filters:
+      - sliding_window_moving_average:
+          window_size: 300
+          send_every: 300
+          send_first_at: 1
+  - platform: ultrasonic
+    trigger_pin: D6
+    echo_pin: D7
+    name: "Distance 00 Ultrasonic Sensor"
+    id: distance_01_ultrasonic_sensor
+    update_interval: 10s
+    filters:
+      - sliding_window_moving_average:
+          window_size: 30
+          send_every: 60
+          send_first_at: 1
+      - delta: 0.02

@@ -1,0 +1,60 @@
+esphome:
+  name: distance_sensor_01
+  platform: ESP8266
+  board: d1_mini
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_pass
+
+  ap:
+    ssid: "Distance 01 Fallback Hotspot"
+    password: !secret ap_pass
+
+captive_portal:
+
+logger:
+
+api:
+
+ota:
+
+web_server:
+  port: 80
+
+sensor:
+  - platform: wifi_signal
+    name: "Distance 01 Wifi Signal"
+    update_interval: 300s
+    filters:
+      - sliding_window_moving_average:
+          window_size: 300
+          send_every: 300
+          send_first_at: 1
+  - platform: ultrasonic
+    trigger_pin: D6
+    echo_pin: D7
+    id: distance_01_ultrasonic_sensor
+    name: "Distance 01 Ultrasonic Sensor"
+    timeout: 6.0m
+    update_interval: 60s
+    filters:
+      - lambda: >
+          if (isnan(x)) {
+            return 3.0;
+          }
+          return x;
+      - delta: 0.1
+
+binary_sensor:
+  - platform: template
+    name: "Car in garage"
+    device_class: presence
+    lambda: |-
+      if (id(distance_01_ultrasonic_sensor).state < 2) {
+        // Garage Door is open.
+        return true;
+      } else {
+        // Garage Door is closed.
+        return false;
+      }

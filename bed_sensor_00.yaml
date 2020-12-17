@@ -1,0 +1,66 @@
+esphome:
+  name: bed_sensor_00
+  platform: ESP8266
+  board: d1_mini
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_pass
+
+  ap:
+    ssid: "Bed Sensor 00 Fallback Hotspot"
+    password: !secret ap_pass
+
+captive_portal:
+
+# Enable logging
+logger:
+  level: WARN
+
+# Enable Home Assistant API
+api:
+
+ota:
+
+web_server:
+  port: 80
+
+binary_sensor:
+  - platform: template
+    name: "Master bed occupancy"
+    device_class: occupancy
+    filters:
+      delayed_on_off: 10s
+    lambda: |-
+      if (id(master_bed_sensor).state < id(trigger_level).state) {
+        return true;
+      } else {
+        return false;
+      }
+
+sensor:
+  - platform: wifi_signal
+    name: "Bed Sensor 00 Wifi Signal"
+    update_interval: 300s
+    filters:
+      - sliding_window_moving_average:
+          window_size: 300
+          send_every: 300
+          send_first_at: 1
+  - platform: adc
+    pin: A0
+    name: "Bed Sensor 00 Voltage"
+    id: master_bed_sensor
+    icon: mdi:hotel
+    update_interval: 1s
+    filters:
+      - multiply: 5
+      - sliding_window_moving_average:
+          window_size: 30
+          send_every: 5
+          send_first_at: 1
+      - delta: 0.5
+  - platform: homeassistant
+    name: "Trigger Level"
+    id: trigger_level
+    entity_id: input_number.master_bed_trigger_level
