@@ -25,7 +25,7 @@ web_server:
 sensor:
   - platform: wifi_signal
     name: "Distance 01 Wifi Signal"
-    update_interval: 300s
+    update_interval: 1s
     filters:
       - sliding_window_moving_average:
           window_size: 300
@@ -37,8 +37,13 @@ sensor:
     id: distance_01_ultrasonic_sensor
     name: "Distance 01 Ultrasonic Sensor"
     timeout: 6.0m
-    update_interval: 60s
+    update_interval: 1s
+    accuracy_decimals: 1
     filters:
+      - sliding_window_moving_average:
+          window_size: 60
+          send_every: 60
+          send_first_at: 1
       - lambda: >
           if (isnan(x)) {
             return 3.0;

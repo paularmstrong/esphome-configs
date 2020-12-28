@@ -36,8 +36,10 @@ sensor:
     echo_pin: D7
     name: "Distance 00 Ultrasonic Sensor"
     id: distance_01_ultrasonic_sensor
-    update_interval: 10s
+    update_interval: 1s
+    accuracy_decimals: 2
     filters:
+      - offset: 0.09
       - sliding_window_moving_average:
           window_size: 30
           send_every: 60
